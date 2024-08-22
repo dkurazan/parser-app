@@ -1,15 +1,19 @@
-import { IMessageParser } from '../contract/parser';
-import { IMessage } from '../contract/message';
+import { IMessageParser } from "../contract/parser";
+import { IMessage } from "../contract/message";
 
 export class MessageParser implements IMessageParser {
+    constructor(private readonly input: string) {}
 
-    // here I replaced "for loop" by "map" so that now the code more leaner
-    parseContent(content: string): IMessage[] {
-        return content.split("\n").map(line => {
+    parseContent(): IMessage[] {
+        return this.input.split("\n").map((line) => {
             const [message, timestamp] = line.split(":");
 
-            // also I added trimming for strings with multiple whitespaces
-            return { message: message.trim(), timestamp };
+            const messageObj = new Map([
+                ["message", message.trim()],
+                ["timestamp", timestamp],
+            ]);
+
+            return messageObj;
         });
     }
 }

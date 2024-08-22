@@ -1,3 +1,4 @@
 export interface IApp {
-  run(): Promise<void>;
+    processFiles([input, output]: [string, string]): Promise<void>;
+    run(): Promise<void>;
 }

@@ -1,4 +1,1 @@
-export interface IMessage {
-  message: string;
-  timestamp: string;
-}
+export type IMessage = Map<string, string>;

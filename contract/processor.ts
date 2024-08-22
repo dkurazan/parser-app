@@ -1,3 +1,3 @@
-export interface IProcessor {
-  processFiles(files: Map<string, string>): Promise<void>;
+export interface IPromiseHandler {
+  handle(): Promise<void>;
 }

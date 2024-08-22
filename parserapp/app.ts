@@ -1,27 +1,39 @@
 import { IApp } from "../contract/app";
-import { IProcessor } from "../contract/processor";
 import { files } from "../static_data";
 import { FileFetcher } from "./fetcher";
 import { MessageParser } from "./parser";
-import { Processor } from "./processor";
-import { MessageSaver } from "./saver";
+import { PromiseHandler } from "./promiseHandler";
+import { IMessage } from "../contract/message";
+import { MessageProcessor } from "./messageProcessor";
 
 export class App implements IApp {
-    private readonly processor: IProcessor;
+    private readonly fetcher;
 
-    // I chose this structure of linking classes instead of
-    // creating "new Processor" class and putting "new FileFetcher", 
-    // "new MessageParser" and "new MessageSaver" as a props because 
-    // I think it looks a bit more readable
     constructor() {
-        const fetcher = new FileFetcher();
-        const parser = new MessageParser();
-        const saver = new MessageSaver(fetcher);
-        this.processor = new Processor(fetcher, parser, saver);
+        this.fetcher = new FileFetcher();
     }
 
-    async run(): Promise<void> {
-        // passing input and output paths
-        await this.processor.processFiles(files);
+    processFiles([input, output]: [string, string]): Promise<void> {
+        return new Promise<void>(async (resolve) => {
+            const response = await this.fetcher.getContent(input);
+
+            const parsedData = new MessageParser(response).parseContent();
+
+            new PromiseHandler<IMessage>(
+                parsedData,
+                new MessageProcessor(this.fetcher, output).processMessage.bind(
+                    this
+                )
+            ).handle();
+
+            resolve();
+        });
+    }
+
+    run(): Promise<void> {
+        return new PromiseHandler(
+            [...files],
+            this.processFiles.bind(this)
+        ).handle();
     }
 }

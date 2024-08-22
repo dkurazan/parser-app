@@ -1,3 +1,4 @@
 export interface IFileFetcher {
-  fetchContent(filePath: string, params?: { body: string; method: string }): Promise<string>;
+  getContent(filePath: string): Promise<string>;
+  postContent(filePath: string, params?: { body: string; method: string }): Promise<string>;
 }
